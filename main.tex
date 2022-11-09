@@ -3,6 +3,14 @@
 \usepackage[spanish]{babel}
 \usepackage{amsmath, amssymb}
 
+\usepackage{geometry}
+ \geometry{
+ letterpaper,
+ total={170mm,200mm},
+ left=25mm,
+ top=20mm,
+ }
+
 \title{Hedging}
 \author{German Valle}
 \date{November 2022}
@@ -70,25 +78,20 @@ La ecuación (\ref{eq:4}) se reescribe como:
  \end{equation}
  es completamente determinístico.
  
-El problema en (\ref{eq:7.1})  es que en realidad no existe modo de elimiar el efecto del tipo de cambio en el riesgo de la posición. Aun cuando  $T = T^\star$ y por tanto $F(T, T^\star) = FX_T$ tenemos que:
+El problema en (\ref{eq:7.1})  es que en realidad no existe modo de elimiar el efecto del tipo de cambio en el riesgo de la posición. Aun cuando  $T = T^\star$ y por tanto $F(T, T^\star) = FX_T$ el factor estocástico en el PnL toma la forma:
  \begin{equation}
      \alpha_t\left(S_TFX_T - S_tF(T, T^\star)\right) = \alpha_tFX_T\left(S_T - S_t\right) 
      \label{eq:7.3}
  \end{equation}
+ Este factor desaparece solo cuando $S_t = S_T$, lo cual es completamente improbable. Consideremos además que que consideramos solo el caso donde $T = T^\star$, pero lo cierto es que dada la naturaleza del trade, no existe una fecha de madurez. Esto da lugar a un riesgo de base permanente que ni siquiera una recalibración frecuente de la cobertura corrige satisfactoriamente.
 
-En este caso el PnL es conocido desde el principio. Este sería el caso ideal, donde la cobertura funciona de manera perfecta. Sin embargo, esto no es lo que realmente observaremos. De la ecuación (\ref{eq:4}) sabemos que el riesgo implícito en la operación esta dado por el término:
-\begin{equation}
-    R(t, T) =  q_tS_TFX_T - h_tF(T, T^\star)
-\end{equation}
-de aquí podemos  observar que la cobertura  exhibe un par de fuentes de riesgo de base que no puede ser eliminado. Por un lado tenemos la posición en dólares $S_T$ que es estocástica por si misma, y por otro tenemos el tipo de cambio futuro $F(T,T^\star)$ que dada la naturaleza de la operación siempre ocurrirá que $F(T,T^\star) \neq FX_T$, lo cual origina un riesgo de base adicional.y
-
-¿Como determinamos el hedge óptimo? Lo primero es definir el cociente:
+En este contexto, ¿como determinamos el hedge óptimo? Lo primero es definir el cociente:
 
 \begin{equation}
-    \phi = \frac{h_t}{q_t}
+    \phi = \frac{\alpha_t}{\beta_t}
     \label{eq:8}
 \end{equation}
-y usamos la notación:
+y para simplificar usaremos la notación:
 \begin{equation}
     \Tilde{S}_t = S_tFX_t
     \label{eq:9}
@@ -96,8 +99,8 @@ y usamos la notación:
 De este modo, reescribimos (\ref{eq:4}) como
 \begin{equation}
     \begin{split}
-            \hat{V}_T - \hat{V}_t  & = q_t\left(\tilde{S}_T - \tilde{S}_t\right) - q_t\phi\left(F(T, T^\star) - F(t, T^\star)\right) \\
-            & = q_t\left(\tilde{S}_T - \tilde{S}_t - \phi\left(F(T, T^\star) - F(t, T^\star)\right)\right)
+            \hat{V}_T - \hat{V}_t  & = \beta_t\left(\tilde{S}_T - \tilde{S}_t\right) - \beta_t\phi\left(F(T, T^\star) - F(t, T^\star)\right) \\
+            & = \beta_t\left(\tilde{S}_T - \tilde{S}_t - \phi\left(F(T, T^\star) - F(t, T^\star)\right)\right)
     \end{split}
     \label{eq:10}
 \end{equation}
@@ -106,12 +109,39 @@ denotamos con:
     \Delta \tilde{S} = \tilde{S}_T - \tilde{S}_T \quad \text{ y } \quad \Delta F = F(T, T^\star) - F(t, T^\star)
     \label{eq:11}
 \end{equation}
-al Pnl de cada activo en la posición. De este modo:
+De modo que:
 \begin{equation}
-    \hat{V}_T - \hat{V}_t = q_t\left(\Delta\tilde{S} - \phi\Delta F\right)
+    \hat{V}_T - \hat{V}_t = \beta_t\left(\Delta\tilde{S} - \phi\Delta F\right)
     \label{eq:12}
 \end{equation}
-Si usamo a la varianza como medida de riesgo, el objetivo es seleccionar el valor de $\phi$ que minimice la varianza de (\ref{eq:12})
+Si usamos a la varianza como medida de riesgo, el objetivo es seleccionar el valor de $\phi$ que minimice la varianza de (\ref{eq:12})
+
+Tenemos entonces que:
+\begin{equation}
+	\begin{split}
+		Var\left(\hat{V}_T - \hat{V}_t\right) & = \beta^2_tVar\left(\Delta\tilde{S} - \phi\Delta F\right) \\ 
+		                                      & = \beta^2_t \left(Var(\Delta\tilde{S}) - \phi^2Var(\Delta F) +2 \phi Cov(\Delta \tilde{S},\Delta F)\right) \\ 
+	\end{split}
+	\label{eq:13}
+\end{equation}
+Para minimizar la varianza, calculamos las condiciones de primer orden: 
+\begin{equation}
+	-\phi Var(\Delta F) +Cov(\Delta \tilde{S},\Delta F) = 0
+	\label{eq:14}
+\end{equation}
+
+De donde se sigue que:
+
+\begin{equation}
+	\phi = \frac{Cov(\Delta \tilde{S},\Delta F)}{Var(\Delta F)} 
+	\label{eq:15}
+\end{equation}
+o bien
+
+\begin{equation}
+	\phi = \rho\frac{\sigma(\Delta \tilde{S})\sigma(\Delta F)}{\sigma^2(\Delta F)} 
+	\label{eq:15}
+\end{equation}
 
 
 
